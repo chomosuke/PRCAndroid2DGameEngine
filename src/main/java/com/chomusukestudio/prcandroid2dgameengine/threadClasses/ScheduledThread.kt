@@ -1,6 +1,7 @@
-package com.chomusukestudio.prcandroid2dgameengine
+package com.chomusukestudio.prcandroid2dgameengine.threadClasses
 
 import android.os.SystemClock
+import com.chomusukestudio.prcandroid2dgameengine.runWithExceptionChecked
 import java.util.concurrent.Executors
 
 class ScheduledThread(private val periodInMillisecond: Long, private val task: () -> Unit) {

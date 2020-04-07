@@ -18,7 +18,7 @@ open class PRCGLSurfaceView(context: Context, attributeSet: AttributeSet) : GLSu
 
     init {
         // Create an OpenGL ES 2.0 context
-        setEGLContextClientVersion(2)
+        setEGLContextClientVersion(3)
     }
 
     lateinit var mRenderer: GLRenderer

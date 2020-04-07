@@ -10,7 +10,7 @@ abstract class ProcessingThread {
     val layers = Layers()
     
     abstract fun generateNextFrame(timeInMillis: Long)
-    abstract fun onTouchEvent(e: MotionEvent): Boolean
+    fun onTouchEvent(e: MotionEvent): Boolean = false
 
     private val nextFrameThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nextFrameThread") }
     private val lock = ReentrantLock()

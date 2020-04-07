@@ -1,6 +1,6 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
-import com.chomusukestudio.prcandroid2dgameengine.ParallelForI
+import com.chomusukestudio.prcandroid2dgameengine.threadClasses.ParallelForI
 import java.util.ArrayList
 import java.util.concurrent.locks.ReentrantLock
 
@@ -37,11 +37,6 @@ class Layers : Iterable<Layer> { // a group of arrayList
         }
     }
 
-//        fun offsetAllLayers(dOffsetX: Float, dOffsetY: Float) {
-//            for (layer in arrayList)
-//                layer.offsetLayer(dOffsetX, dOffsetY)
-//        }
-
     private val lockOnArrayList = ReentrantLock()
 
     fun drawAll() {
@@ -53,7 +48,11 @@ class Layers : Iterable<Layer> { // a group of arrayList
         lockOnArrayList.unlock()
     }
 
-    private val parallelForIForPassArraysToBuffers = ParallelForI(20, "passArraysToBuffers")
+    private val parallelForIForPassArraysToBuffers =
+        ParallelForI(
+            20,
+            "passArraysToBuffers"
+        )
     fun passArraysToBuffers() {
         lockOnArrayList.lock()
 
@@ -61,9 +60,6 @@ class Layers : Iterable<Layer> { // a group of arrayList
             arrayList[i].passArraysToBuffers()
         }, arrayList.size)
         parallelForIForPassArraysToBuffers.waitForLastRun()
-
-//        for (layer in arrayList)
-//            layer.passArraysToBuffers()
 
         lockOnArrayList.unlock()
     }

@@ -11,11 +11,11 @@ import javax.microedition.khronos.opengles.GL10
 
 import android.content.ContentValues.TAG
 import android.opengl.GLES30
+import com.chomusukestudio.prcandroid2dgameengine.PRCGLSurfaceView
 import com.chomusukestudio.prcandroid2dgameengine.PauseableTimer
 import com.chomusukestudio.prcandroid2dgameengine.ProcessingThread
-import com.chomusukestudio.prcandroid2dgameengine.PRCGLSurfaceView
 
-class GLRenderer(val processingThread: ProcessingThread, val PRCGLSurfaceView: PRCGLSurfaceView) : GLSurfaceView.Renderer {
+class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfaceView: PRCGLSurfaceView) : GLSurfaceView.Renderer {
 
     private val timer = PauseableTimer()
     fun setTimerRate(rate: Double) {
@@ -26,12 +26,6 @@ class GLRenderer(val processingThread: ProcessingThread, val PRCGLSurfaceView: P
         //enable transparency
         GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
         GLES30.glEnable(GLES30.GL_BLEND)
-
-        //
-        //        // Enable depth test
-        //        glEnable(GL_DEPTH_TEST);
-        //        // Accept fragment if it closer to the camera than the former one
-        //        glDepthFunc(GL_LESS);
 
         // Set the background frame color
         GLES30.glClearColor(0f, 0f, 0f, 1f)
@@ -70,7 +64,11 @@ class GLRenderer(val processingThread: ProcessingThread, val PRCGLSurfaceView: P
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
 
-        Layer.refreshMatrix(generateLeftRightBottomTopEnd(width.toFloat() / height))
+        Layer.refreshMatrix(
+            generateLeftRightBottomTopEnd(
+                width.toFloat() / height
+            )
+        )
     }
 
     fun pauseGLRenderer() {
@@ -86,9 +84,6 @@ class GLRenderer(val processingThread: ProcessingThread, val PRCGLSurfaceView: P
             PRCGLSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
             timer.paused = false
-            //            // if something happened with time try uncomment this
-//            nowXY = timeMillis()
-//            previousFrameTime = timeMillis()
         }
     }
 }

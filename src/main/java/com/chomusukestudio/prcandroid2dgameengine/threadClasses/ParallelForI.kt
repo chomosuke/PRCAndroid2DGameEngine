@@ -1,7 +1,8 @@
-package com.chomusukestudio.prcandroid2dgameengine
+package com.chomusukestudio.prcandroid2dgameengine.threadClasses
 
 
 import android.util.Log
+import com.chomusukestudio.prcandroid2dgameengine.runWithExceptionChecked
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

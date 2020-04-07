@@ -26,7 +26,6 @@ class PauseableTimer {
     @Volatile var rate = 1.0
     @Volatile private var lastUptimeMillis = SystemClock.uptimeMillis()
     @Volatile private var time = 0.0
-        private set
         get() {
             if (!paused) {
                 field += (SystemClock.uptimeMillis() - lastUptimeMillis) * rate
