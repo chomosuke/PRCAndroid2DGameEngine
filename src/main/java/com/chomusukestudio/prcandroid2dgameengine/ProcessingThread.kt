@@ -9,14 +9,14 @@ import java.util.concurrent.locks.ReentrantLock
 abstract class ProcessingThread {
     val layers = Layers()
     
-    abstract fun generateNextFrame(timeInMillis: Long)
-    fun onTouchEvent(e: MotionEvent): Boolean = false
+    protected abstract fun generateNextFrame(timeInMillis: Long)
+    open fun onTouchEvent(e: MotionEvent): Boolean = false
 
     private val nextFrameThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nextFrameThread") }
     private val lock = ReentrantLock()
     private val condition = lock.newCondition()
     
-    internal fun _generateNextFrame(timeInMillis: Long) {
+    internal fun internalGenerateNextFrame(timeInMillis: Long) {
             finished = false // haven't started
             nextFrameThread.submit {
                 runWithExceptionChecked {
@@ -51,5 +51,5 @@ abstract class ProcessingThread {
         lock.unlock()
     }
 
-    @Volatile var finished = true // last frame that doesn't exist has finish
+    @Volatile private var finished = true // last frame that doesn't exist has finish
 }

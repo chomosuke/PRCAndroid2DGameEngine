@@ -41,8 +41,8 @@ abstract class Shape : ISolid, IRemovable {
     
     override val overlapper: Overlapper
         get() = object : Overlapper() {
-		override val components: Array<Overlapper> = Array(componentShapes.size) { componentShapes[it].overlapper }
-	}
+            override val components: Array<Overlapper> = Array(componentShapes.size) { componentShapes[it].overlapper }
+        }
     
     override fun move(displacement: Vector) {
         if (displacement.x == 0f && displacement.y == 0f) {

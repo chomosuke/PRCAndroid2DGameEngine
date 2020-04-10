@@ -44,7 +44,7 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
             // can't refresh buffers when processingThread is running or when drawing all triangles
             processingThread.layers.passArraysToBuffers()
 
-            processingThread._generateNextFrame(timer.timeMillis())
+            processingThread.internalGenerateNextFrame(timer.timeMillis())
         }
         // Clear the screen
         //        GLES30.glClear(GL_DEPTH_BUFFER_BIT);
