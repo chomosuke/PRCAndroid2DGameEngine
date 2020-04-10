@@ -65,9 +65,7 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
         // in the onDrawFrame() method
 
         Layer.refreshMatrix(
-            generateLeftRightBottomTopEnd(
-                width.toFloat() / height
-            )
+            arrayOf(processingThread.leftEdge, processingThread.rightEdge, processingThread.bottomEdge, processingThread.topEdge)
         )
     }
 
@@ -86,28 +84,4 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
             timer.paused = false
         }
     }
-}
-
-/**
- *  a function to take in ration of with and height and return a array of left right bottom top end
- */
-fun generateLeftRightBottomTopEnd(widthOverHeight: Float): Array<Float> {
-    val rightEnd: Float; val leftEnd: Float; val bottomEnd: Float; val topEnd: Float;
-    if (widthOverHeight > 9f / 16f) {// if the screen is wider than a 16:9 screen
-        rightEnd = widthOverHeight * 8f
-        leftEnd = widthOverHeight * -8f
-        bottomEnd = -8f
-        topEnd = 8f
-    } else if (1 / widthOverHeight > 16f / 9f) {// if the screen is taller than a 16:9 screen
-        rightEnd = 4.5f
-        leftEnd = -4.5f
-        bottomEnd = 1 / widthOverHeight * -4.5f
-        topEnd = 1 / widthOverHeight * 4.5f
-    } else {// if the screen is 16;9
-        rightEnd = 4.5f
-        leftEnd = -4.5f
-        bottomEnd = -8f
-        topEnd = 8f
-    }
-    return arrayOf(leftEnd, rightEnd, bottomEnd, topEnd)
 }

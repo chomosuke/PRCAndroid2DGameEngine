@@ -12,6 +12,12 @@ abstract class ProcessingThread {
     protected abstract fun generateNextFrame(timeInMillis: Long)
     open fun onTouchEvent(e: MotionEvent): Boolean = false
 
+    abstract val leftEdge: Float
+    abstract val rightEdge: Float
+    abstract val topEdge: Float
+    abstract val bottomEdge: Float
+    // boundary of the coordinate system
+
     private val nextFrameThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nextFrameThread") }
     private val lock = ReentrantLock()
     private val condition = lock.newCondition()

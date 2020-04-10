@@ -199,12 +199,12 @@ abstract class Layer(val z: Float, private val fragmentBlockSize: Int, initialNu
 //        Matrix.orthoM(mProjectionMatrix, 0, rightEnd * 2, leftEnd * 2,
 //                bottomEnd * 2, topEnd * 2, -1000f, 1000f)
             Matrix.orthoM(
-                mProjectionMatrix, 0, rightEnd, leftEnd,
+                mProjectionMatrix, 0, leftEnd, rightEnd,
                     bottomEnd, topEnd, -1000f, 1000f)
             // this game shall be optimised for any aspect ratio as nowXY all rightEnd, leftEnd, bottomEnd and topEnd are visibility
 
             // Set the camera position (View matrix)
-            Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
+            Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
 
             // Calculate the projection and view transformation
             Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
