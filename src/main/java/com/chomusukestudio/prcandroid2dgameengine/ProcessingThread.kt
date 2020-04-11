@@ -11,12 +11,11 @@ abstract class ProcessingThread {
     
     protected abstract fun generateNextFrame(timeInMillis: Long)
     open fun onTouchEvent(e: MotionEvent): Boolean = false
+    protected abstract fun getLeftRightBottomTopBoundaries(width: Int, height: Int): FloatArray
 
-    abstract val leftEdge: Float
-    abstract val rightEdge: Float
-    abstract val topEdge: Float
-    abstract val bottomEdge: Float
-    // boundary of the coordinate system
+    fun updateBoundaries(width: Int, height: Int) {
+        layers.leftRightBottomTopEnds = getLeftRightBottomTopBoundaries(width, height)
+    }
 
     private val nextFrameThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nextFrameThread") }
     private val lock = ReentrantLock()

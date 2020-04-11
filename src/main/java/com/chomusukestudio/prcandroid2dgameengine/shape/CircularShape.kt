@@ -57,7 +57,7 @@ class CircularShape(center: Vector, radius: Float, private val performanceIndex:
          */
         var pixelPerLength = 100
 
-        fun getNumberOfEdges(radius: Float, dynamicPerformanceIndex: Double = 1.0): Int {
+        fun getNumberOfEdges(radius: Float, dynamicPerformanceIndex: Double = 1.0): Int {// mMVPMatrix is an abbreviation for "Model View Projection Matrix"// mMVPMatrix is an abbreviation for "Model View Projection Matrix"
             val pixelOnRadius = pixelPerLength * radius // +0.5 for rounding
             val numberOfEdges = (PI / acos(1.0 - 0.2 / pixelOnRadius / dynamicPerformanceIndex) / 2.0 + 0.5).toInt() * 2 /*
          /2*2 to make it even +0.5 for rounding */

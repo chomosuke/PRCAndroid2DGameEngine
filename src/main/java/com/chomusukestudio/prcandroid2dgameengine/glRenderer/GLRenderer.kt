@@ -64,9 +64,7 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
 
-        Layer.refreshMatrix(
-            arrayOf(processingThread.leftEdge, processingThread.rightEdge, processingThread.bottomEdge, processingThread.topEdge)
-        )
+        processingThread.updateBoundaries(width, height)
     }
 
     fun pauseGLRenderer() {

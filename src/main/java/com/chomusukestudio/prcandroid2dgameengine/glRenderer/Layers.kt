@@ -7,6 +7,16 @@ import java.util.concurrent.locks.ReentrantLock
 class Layers : Iterable<Layer> { // a group of arrayList
     private val arrayList = ArrayList<Layer>()
 
+    private lateinit var lrbtEnds: FloatArray
+    var leftRightBottomTopEnds: FloatArray
+        get() = lrbtEnds
+        set (value) {
+            lrbtEnds = value
+            for (layer in this) {
+                layer.setLRBTEnds(value)
+            }
+        }
+
     override fun iterator() = arrayList.iterator()
 
     fun remove(element: Layer) {
@@ -16,6 +26,10 @@ class Layers : Iterable<Layer> { // a group of arrayList
     }
 
     fun insert(newLayer: Layer) {
+
+        // adjust newLayer's Ends to Layers'
+        newLayer.setLRBTEnds(lrbtEnds)
+
         var i = 0
         while (true) {
             if (i == arrayList.size) {

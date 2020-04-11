@@ -6,6 +6,7 @@ import android.util.Log
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.util.*
 
 // if any layer.triangleCoords[i1] or layer.colors[i2] contain this value then it's unused
 const val UNUSED = -107584485858583778999908789293009999999f
@@ -82,12 +83,6 @@ abstract class Layer(val z: Float, private val fragmentBlockSize: Int, initialNu
     }
 
     private fun setupBuffers() {
-//        while (changingBuffer || drawing); // don't change buffer while changing buffer or drawing
-
-        changingBuffer = true
-
-        newBufferPassedToArray = false
-
         // initialize vertex byte buffer for shape coordinates
         val bb = ByteBuffer.allocateDirect(
                 // (number of coordinate values * 4 bytes per float)
@@ -107,16 +102,8 @@ abstract class Layer(val z: Float, private val fragmentBlockSize: Int, initialNu
 
         // create a floating score buffer from the ByteBuffer
         fragmentBuffer = bb2.asFloatBuffer()
-
-        changingBuffer = false
     }
-    @Volatile private var changingBuffer = false
-    @Volatile private var newBufferPassedToArray = false
     fun passArraysToBuffers() {
-//        while (changingBuffer || drawing); // don't change buffer while changing buffer or drawing
-
-        changingBuffer = true
-
         // offset the coordinates to the FloatBuffer
         vertexBuffer.put(triangleCoords)
         // set the buffer to read the first coordinate
@@ -125,10 +112,6 @@ abstract class Layer(val z: Float, private val fragmentBlockSize: Int, initialNu
         fragmentBuffer.put(fragmentData)
         // set the buffer to read the first coordinate
         fragmentBuffer.position(0)
-
-        newBufferPassedToArray = true
-
-        changingBuffer = false
     }
 
     fun getFragmentPointer(coordPointer: Int): Int {
@@ -181,35 +164,6 @@ abstract class Layer(val z: Float, private val fragmentBlockSize: Int, initialNu
 
 
     companion object {
-
-        // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
-        private val mProjectionMatrix = FloatArray(16)
-        private val mViewMatrix = FloatArray(16)
-        private val mvpMatrix = FloatArray(16)
-
-        fun refreshMatrix(leftRightBottomTopEnd: Array<Float>) {
-            // this projection matrix is applied to object coordinates
-            // in the onDrawFrame() method
-
-            val leftEnd = leftRightBottomTopEnd[0]
-            val rightEnd = leftRightBottomTopEnd[1]
-            val bottomEnd = leftRightBottomTopEnd[2]
-            val topEnd = leftRightBottomTopEnd[3]
-            // for debugging
-//        Matrix.orthoM(mProjectionMatrix, 0, rightEnd * 2, leftEnd * 2,
-//                bottomEnd * 2, topEnd * 2, -1000f, 1000f)
-            Matrix.orthoM(
-                mProjectionMatrix, 0, leftEnd, rightEnd,
-                    bottomEnd, topEnd, -1000f, 1000f)
-            // this game shall be optimised for any aspect ratio as nowXY all rightEnd, leftEnd, bottomEnd and topEnd are visibility
-
-            // Set the camera position (View matrix)
-            Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-
-            // Calculate the projection and view transformation
-            Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
-        }
-
         fun createGLProgram(vertexShaderCode: String, fragmentShaderCode: String): Int {
             val program = GLES30.glCreateProgram()
             // can't do in the declaration as will return 0 because not everything is prepared
@@ -253,16 +207,32 @@ abstract class Layer(val z: Float, private val fragmentBlockSize: Int, initialNu
         }
     }
 
+    // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
+    private var mvpMatrix = FloatArray(16)
+    fun setLRBTEnds(LRBTEnds: FloatArray) {
+        if (LRBTEnds.size != 4)
+            throw IllegalArgumentException("leftRightBottomTopBoundaries' size isn't 4")
+
+        // this projection matrix is applied to object coordinates
+        // in the onDrawFrame() method
+
+        val mProjectionMatrix = FloatArray(16)
+        val mViewMatrix = FloatArray(16)
+
+        Matrix.orthoM(
+            mProjectionMatrix, 0, LRBTEnds[0], LRBTEnds[1],
+            LRBTEnds[2], LRBTEnds[3], -1000f, 1000f)
+
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
+
+        // Calculate the projection and view transformation
+        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
+    }
+
     protected abstract val mProgram: Int
-    @Volatile private var drawing = false
     fun drawLayer() {
-//        while (changingBuffer || !newBufferPassedToArray);
-
-        drawing = true
-
         drawLayer(mProgram, vertexBuffer, fragmentBuffer, vertexStride, vertexCount, mvpMatrix)
-
-        drawing = false
     }
 
     protected abstract fun drawLayer(mProgram: Int, vertexBuffer: FloatBuffer, fragmentBuffer: FloatBuffer, vertexStride: Int, vertexCount: Int, mvpMatrix: FloatArray)
