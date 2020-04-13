@@ -1,6 +1,6 @@
 package com.chomusukestudio.prcandroid2dgameengine.shape
 
-import com.chomusukestudio.prcandroid2dgameengine.glRenderer.Layers
+import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
 
 
 /**
@@ -19,15 +19,11 @@ abstract class Shape : ISolid, IRemovable {
     abstract var componentShapes: Array<Shape>
         protected set
     
-    open val shapeColor: Color
+    open var shapeColor: Color
         get() = componentShapes[0].shapeColor
-    
-    protected open val size: Int
-        get() {
-            var numberOfTriangularShape = 0
+        set(value) {
             for (componentShape in componentShapes)
-                numberOfTriangularShape += componentShape.size
-            return numberOfTriangularShape
+                componentShape.shapeColor = value
         }
 
     open var visibility: Boolean
@@ -61,11 +57,6 @@ abstract class Shape : ISolid, IRemovable {
             componentShape.rotate(centerOfRotation, angle)
     }
     
-    open fun resetShapeColor(color: Color) {
-        for (componentShape in componentShapes)
-            componentShape.resetShapeColor(color)
-    }
-    
     open fun resetAlpha(alpha: Float) {
         for (componentShape in componentShapes) {
             componentShape.resetAlpha(alpha)
@@ -90,7 +81,7 @@ data class Color (val red: Float, val green: Float, val blue: Float, val alpha: 
     fun toArray() = arrayOf(red, green, blue, alpha)
 }
 
-data class BuildShapeAttr(val z: Float, val visibility: Boolean, val layers: Layers) { // never set this as a property
-    fun newAttrWithChangedZ(dz: Float) = BuildShapeAttr(z + dz, visibility, layers)
-    fun newAttrWithNewVisibility(visibility: Boolean) = BuildShapeAttr(z, visibility, layers)
+data class BuildShapeAttr(val z: Float, val visibility: Boolean, val drawData: DrawData) { // never set this as a property
+    fun newAttrWithChangedZ(dz: Float) = BuildShapeAttr(z + dz, visibility, drawData)
+    fun newAttrWithNewVisibility(visibility: Boolean) = BuildShapeAttr(z, visibility, drawData)
 }

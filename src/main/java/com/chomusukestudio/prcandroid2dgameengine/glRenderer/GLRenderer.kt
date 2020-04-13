@@ -32,6 +32,7 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
 
         ShapeLayer.createGLProgram()
         TextureLayer.createGLProgram()
+        EllipseLayer.createGLProgram()
         Log.i(TAG, "onSurfaceCreated() called")
 
     }
@@ -42,7 +43,7 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
             processingThread.waitForLastFrame()
 
             // can't refresh buffers when processingThread is running or when drawing all triangles
-            processingThread.layers.passArraysToBuffers()
+            processingThread.drawData.passArraysToBuffers()
 
             processingThread.internalGenerateNextFrame(timer.timeMillis())
         }
@@ -54,7 +55,7 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
         // this is required on certain devices
 
         // Draw all!
-        processingThread.layers.drawAll()
+        processingThread.drawData.drawAll()
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {

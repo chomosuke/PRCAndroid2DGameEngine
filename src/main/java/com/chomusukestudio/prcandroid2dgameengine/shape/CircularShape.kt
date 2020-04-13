@@ -12,43 +12,31 @@ import java.lang.Math.acos
 
 class CircularShape(center: Vector, radius: Float, private val performanceIndex: Double, color: Color, private val buildShapeAttr: BuildShapeAttr) : Shape() {
     override var componentShapes: Array<Shape> = arrayOf(
-        RegularPolygonalShape(
-            getNumberOfEdges(radius, performanceIndex),
-            center, radius, color, buildShapeAttr)
+        EllipseShape(center, radius, radius, color, buildShapeAttr)
     )
-    private var regularPolygonalShape
+    private var ellipseShape
         set(value) { componentShapes[0] = value }
-        get() = componentShapes[0] as RegularPolygonalShape
+        get() = componentShapes[0] as EllipseShape
 
     override val overlapper: Overlapper
         get() = CircularOverlapper(center, radius)
 
     // parameters needed for isOverlapToOverride method.
     val center
-        get() = regularPolygonalShape.center
+        get() = ellipseShape.center
 
     var radius
         set(value) {
-            regularPolygonalShape.radius = value
-            if (abs(radius) > abs(lastChangeOfNumberOfEdgesRadius * 1.25) || abs(radius) < abs(lastChangeOfNumberOfEdgesRadius * 0.8)
-                    && getNumberOfEdges(radius, performanceIndex) != regularPolygonalShape.numberOfEdges) {
-                lastChangeOfNumberOfEdgesRadius = radius
-                val color = shapeColor
-                regularPolygonalShape.remove()
-                regularPolygonalShape = RegularPolygonalShape(
-                    getNumberOfEdges(radius, performanceIndex),
-                        center, radius, color, buildShapeAttr.newAttrWithNewVisibility(visibility)/*visibility might have changed*/)
-            }
+            ellipseShape.resetParameter(center, value, value)
         }
-        get() = regularPolygonalShape.radius
+        get() = ellipseShape.a
 
 
     constructor(center: Vector, radius: Float, color: Color, buildShapeAttr: BuildShapeAttr) : this(center, radius, 1.0, color, buildShapeAttr)
 
     private var lastChangeOfNumberOfEdgesRadius = radius
     fun resetParameter(center: Vector, radius: Float) {
-        this.radius = radius
-        regularPolygonalShape.resetCenter(center)
+        ellipseShape.resetParameter(center, radius, radius)
     }
 
     companion object {
@@ -57,7 +45,7 @@ class CircularShape(center: Vector, radius: Float, private val performanceIndex:
          */
         var pixelPerLength = 100
 
-        fun getNumberOfEdges(radius: Float, dynamicPerformanceIndex: Double = 1.0): Int {// mMVPMatrix is an abbreviation for "Model View Projection Matrix"// mMVPMatrix is an abbreviation for "Model View Projection Matrix"
+        fun getNumberOfEdges(radius: Float, dynamicPerformanceIndex: Double = 1.0): Int {
             val pixelOnRadius = pixelPerLength * radius // +0.5 for rounding
             val numberOfEdges = (PI / acos(1.0 - 0.2 / pixelOnRadius / dynamicPerformanceIndex) / 2.0 + 0.5).toInt() * 2 /*
          /2*2 to make it even +0.5 for rounding */

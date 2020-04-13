@@ -10,13 +10,11 @@ import java.nio.FloatBuffer
 // this layer only have a single image/texture
 class TextureLayer(private val context: Context, private val resourceId: Int,
                    vertex1: Vector, vertex2: Vector, vertex3: Vector, vertex4: Vector,
-                   z: Float) : Layer(z, 6 /*texture 2d times three vertex*/, 2) {
-    override val mProgram: Int
-        get() = glProgram
+                   z: Float) : Layer(z, intArrayOf(2) /*texture 2d*/, 1, 2) {
     companion object {
-        private var glProgram = -100
+        private var mProgram = -100
         fun createGLProgram() {
-            glProgram = createGLProgram(vertexShaderCode, fragmentShaderCode)
+            mProgram = createGLProgram(vertexShaderCode, fragmentShaderCode)
         }
         private const val vertexShaderCode =
                 "uniform mat4 uMVPMatrix;" +
@@ -39,38 +37,11 @@ class TextureLayer(private val context: Context, private val resourceId: Int,
 
                         "varying vec2 tCoordsF;" +
 
-                        "vec4 bringInRange(vec4 v4);" +
-
                         "void main() {" +
                         "  vec4 color = texture2D(texture, tCoordsF);" +
                         "  if (color == colorBeSwapped) " +
                         "    color = colorSwappedTo;" +
-                        "  color += colorOffset;" +
-                        "  gl_FragColor = bringInRange(color);" +
-                        "}" +
-
-                        "vec4 bringInRange(vec4 v4) {" +
-                        "  if (v4.x < 0.0)" +
-                        "    v4.x = 0.0;" +
-                        "  else if (v4.x > 1.0)" +
-                        "    v4.x = 1.0;" +
-
-                        "  if (v4.y < 0.0)" +
-                        "    v4.y = 0.0;" +
-                        "  else if (v4.y > 1.0)" +
-                        "    v4.y = 1.0;" +
-
-                        "  if (v4.z < 0.0)" +
-                        "    v4.z = 0.0;" +
-                        "  else if (v4.z > 1.0)" +
-                        "    v4.z = 1.0;" +
-
-                        "  if (v4.w < 0.0)" +
-                        "    v4.w = 0.0;" +
-                        "  else if (v4.w > 1.0)" +
-                        "    v4.w = 1.0;" +
-
-                        "  return v4;" +
+                        "  gl_FragColor = color + colorOffset;" +
                         "}"
     }
 
@@ -103,18 +74,20 @@ class TextureLayer(private val context: Context, private val resourceId: Int,
         triangleCoords[9] = vertex4.y
         triangleCoords[10] = vertex3.x
         triangleCoords[11] = vertex3.y
-        fragmentData[0] = 0f
-        fragmentData[1] = 0f
-        fragmentData[2] = 1f
-        fragmentData[3] = 0f
-        fragmentData[4] = 1f
-        fragmentData[5] = 1f
-        fragmentData[6] = 0f
-        fragmentData[7] = 0f
-        fragmentData[8] = 0f
-        fragmentData[9] = 1f
-        fragmentData[10] = 1f
-        fragmentData[11] = 1f
+
+        // image have y axis pointing downwards
+        fragmentDatas[0][0] = 0f
+        fragmentDatas[0][1] = 0f
+        fragmentDatas[0][2] = 1f
+        fragmentDatas[0][3] = 0f
+        fragmentDatas[0][4] = 1f
+        fragmentDatas[0][5] = 1f
+        fragmentDatas[0][6] = 0f
+        fragmentDatas[0][7] = 0f
+        fragmentDatas[0][8] = 0f
+        fragmentDatas[0][9] = 1f
+        fragmentDatas[0][10] = 1f
+        fragmentDatas[0][11] = 1f
     }
 
     private fun loadTexture(context: Context, resourceId: Int): Int {
@@ -149,7 +122,7 @@ class TextureLayer(private val context: Context, private val resourceId: Int,
         return textureHandle[0]
     }
 
-    override fun drawLayer(mProgram: Int, vertexBuffer: FloatBuffer, fragmentBuffer: FloatBuffer, vertexStride: Int, vertexCount: Int, mvpMatrix: FloatArray) {
+    override fun drawLayer(vertexBuffer: FloatBuffer, fragmentBuffers: Array<FloatBuffer>, vertexCount: Int, mvpMatrix: FloatArray) {
         if (textureHandle == 0)
             // haven't done the lazy initialization yet
             textureHandle = loadTexture(context, resourceId)
@@ -166,15 +139,16 @@ class TextureLayer(private val context: Context, private val resourceId: Int,
         // Prepare the triangle coordinate data
         GLES30.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES30.GL_FLOAT, false,
-                vertexStride, vertexBuffer)
+            0, vertexBuffer)
 
         // get handle to fragment shader's vColor member
         val tCoordsHandle = GLES30.glGetAttribLocation(mProgram, "tCoords")
         // Set colors for drawing the triangle
         GLES30.glEnableVertexAttribArray(tCoordsHandle)
-        GLES30.glVertexAttribPointer(tCoordsHandle, 2,
+        GLES30.glVertexAttribPointer(tCoordsHandle, fragmentStrides[0],
                 GLES30.GL_FLOAT, false,
-                0, fragmentBuffer)
+                0, fragmentBuffers[0]
+        )
 
         val textureUniformHandle = GLES30.glGetUniformLocation(mProgram, "texture")
 

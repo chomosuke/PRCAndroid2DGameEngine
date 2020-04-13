@@ -3,14 +3,12 @@ package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 import android.opengl.GLES30
 import java.nio.FloatBuffer
 
-class ShapeLayer(z: Float) : Layer(z, 12, 100) {
-    override val mProgram: Int
-            get() = glProgram
+class ShapeLayer(z: Float) : Layer(z, intArrayOf(4), 100, 1) {
 
     companion object {
-        private var glProgram = -100
+        private var mProgram = -100
         fun createGLProgram() {
-            glProgram = createGLProgram(vertexShaderCode, fragmentShaderCode)
+            mProgram = createGLProgram(vertexShaderCode, fragmentShaderCode)
         }
         private const val vertexShaderCode =
         // This matrix member variable provides a hook to manipulate
@@ -38,7 +36,7 @@ class ShapeLayer(z: Float) : Layer(z, 12, 100) {
                         "}"
     }
 
-    override fun drawLayer(mProgram: Int, vertexBuffer: FloatBuffer, fragmentBuffer: FloatBuffer, vertexStride: Int, vertexCount: Int, mvpMatrix: FloatArray) {
+    override fun drawLayer(vertexBuffer: FloatBuffer, fragmentBuffers: Array<FloatBuffer>, vertexCount: Int, mvpMatrix: FloatArray) {
         // Add program to OpenGL ES environment
         GLES30.glUseProgram(mProgram)
 
@@ -51,15 +49,16 @@ class ShapeLayer(z: Float) : Layer(z, 12, 100) {
         // Prepare the triangle coordinate data
         GLES30.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES30.GL_FLOAT, false,
-                vertexStride, vertexBuffer)
+            0, vertexBuffer)
 
         // get handle to fragment shader's vColor member
         val mColorHandle = GLES30.glGetAttribLocation(mProgram, "aColor")
         // Set colors for drawing the triangle
         GLES30.glEnableVertexAttribArray(mColorHandle)
-        GLES30.glVertexAttribPointer(mColorHandle, 4,
+        GLES30.glVertexAttribPointer(mColorHandle, fragmentStrides[0],
                 GLES30.GL_FLOAT, false,
-                0, fragmentBuffer)
+                0, fragmentBuffers[0]
+        )
 
         // get handle to shape's transformation matrix
         val mMVPMatrixHandle = GLES30.glGetUniformLocation(mProgram, "uMVPMatrix")

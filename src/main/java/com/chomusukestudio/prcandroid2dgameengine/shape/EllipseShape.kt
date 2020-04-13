@@ -1,38 +1,84 @@
 package com.chomusukestudio.prcandroid2dgameengine.shape
 
 import com.chomusukestudio.prcandroid2dgameengine.distance
+import com.chomusukestudio.prcandroid2dgameengine.glRenderer.GLEllipse
 import com.chomusukestudio.prcandroid2dgameengine.square
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-class EllipseShape(center: Vector, a: Float, b: Float, color: Color, buildShapeAttr: BuildShapeAttr) : Shape() {
-    override lateinit var componentShapes: Array<Shape>
-
-    init {
-        val numberOfEdges = CircularShape.getNumberOfEdges((a + b) / 2)
-        // just initialize it.
-        val componentShapes = arrayOfNulls<TriangularShape>(numberOfEdges - 2)
-
-        // generate components triangularShape for EllipseShape isInUse center and a and b
-        val initialTheta = 2f * PI.toFloat() / numberOfEdges
-        val vertex1 = Vector(center.x, center.y + b)
-        var vertex2 = Vector(center.x + a * sin(initialTheta),
-                center.y + b * cos(initialTheta))
-        for (i in 1 until numberOfEdges - 1) {
-            val theta = 2f * PI.toFloat() * (i + 1) / numberOfEdges
-            val vertex3 = Vector(center.x + a * sin(theta),
-                    center.y + b * cos(theta))
-            componentShapes[i - 1] = TriangularShape(vertex1,
-                    vertex2,
-                    vertex3,
-                    color, buildShapeAttr)
-            vertex2 = vertex3
+class EllipseShape(center: Vector, a: Float, b: Float, color: Color, private val buildShapeAttr: BuildShapeAttr) : Shape() {
+    override var componentShapes: Array<Shape>
+        get() = throw IllegalAccessException("Ellipse is base on texture not componentShapes")
+        set(value) {
+            throw IllegalAccessException("Ellipse is base on texture not componentShapes")
         }
 
-        this.componentShapes = componentShapes as Array<Shape>
+    private var glEllipse = if (buildShapeAttr.visibility) GLEllipse(center, a, b, color, buildShapeAttr) else null
+
+    override var shapeColor: Color = color
+        set(value) {
+            if (visibility)
+                glEllipse!!.color = value
+            field = value
+        }
+
+    override fun remove() {
+        glEllipse?.remove()
+        removed = true
     }
+
+    override var visibility = buildShapeAttr.visibility
+        set(value) {
+            if (field != value) {
+                if (value) {
+                    glEllipse = GLEllipse(center, a, b, shapeColor ,buildShapeAttr)
+                    glEllipse!!.rotate(center, rotation)
+                } else {
+                    glEllipse!!.remove()
+                    glEllipse = null
+                }
+                field = value
+            }
+        }
+
+    var rotation = 0f
+        private set
+    var center = center
+        private set
+    var a = a
+        private set
+    var b = b
+        private set
+
+    override fun rotate(centerOfRotation: Vector, angle: Float) {
+        center = center.rotateVector(centerOfRotation, angle)
+        rotation += angle
+        if (visibility) {
+            glEllipse!!.rotate(centerOfRotation, angle)
+        }
+    }
+
+    override fun move(displacement: Vector) {
+        center += displacement
+        if (visibility) {
+            glEllipse!!.move(displacement)
+        }
+    }
+
+    fun resetParameter(center: Vector, a:Float, b: Float) {
+        if (visibility) {
+            glEllipse!!.setParameters(center, a, b)
+            glEllipse!!.rotate(center, rotation)
+        }
+        this.center = center
+        this.a = a
+        this.b = b
+    }
+
+    override val overlapper: Overlapper
+        get() = EllipseOverlapper(center, a, b, rotation)
 }
 
 class EllipseOverlapper(val center: Vector, val a: Float, val b: Float, val rotation: Float): Overlapper() {

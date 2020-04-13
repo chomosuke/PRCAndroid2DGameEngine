@@ -1,21 +1,32 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
+import com.chomusukestudio.prcandroid2dgameengine.shape.Vector
 import com.chomusukestudio.prcandroid2dgameengine.threadClasses.ParallelForI
-import java.util.ArrayList
+import java.util.*
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.math.abs
 
-class Layers : Iterable<Layer> { // a group of arrayList
+class DrawData : Iterable<Layer> { // a group of arrayList
     private val arrayList = ArrayList<Layer>()
 
-    private lateinit var lrbtEnds: FloatArray
+    private var lrbtEnds: FloatArray? = null
     var leftRightBottomTopEnds: FloatArray
-        get() = lrbtEnds
+        get() = lrbtEnds ?: throw RuntimeException("leftRightBottomTopEnds haven't been initialized")
         set (value) {
             lrbtEnds = value
             for (layer in this) {
                 layer.setLRBTEnds(value)
             }
         }
+
+    private lateinit var pixelSize: Vector // for antialiasing
+    fun setPixelSize(width: Int, height: Int) {
+        pixelSize = Vector(abs(leftRightBottomTopEnds[0] - leftRightBottomTopEnds[1]) / width,
+                abs(leftRightBottomTopEnds[2] - leftRightBottomTopEnds[3]) / height)
+        for (layer in this) {
+            layer.pixelSize = pixelSize
+        }
+    }
 
     override fun iterator() = arrayList.iterator()
 
@@ -25,10 +36,25 @@ class Layers : Iterable<Layer> { // a group of arrayList
         lockOnArrayList.unlock()
     }
 
-    fun insert(newLayer: Layer) {
+    inline fun <reified T : Layer>getLayer(z: Float, layerFactory:() -> T): T {
+        for (layer in this) {
+            if (layer.z == z && layer is T) {
+                return layer // find the layer with that z
+            }
+        }
 
-        // adjust newLayer's Ends to Layers'
-        newLayer.setLRBTEnds(lrbtEnds)
+        // there is no layer with that z so create one and return index of that layer
+        val newLayer = layerFactory()
+        insert(newLayer)
+        return newLayer
+    }
+    fun insert(newLayer: Layer) { // public as getLayer is public and inline
+
+        if (lrbtEnds != null) {
+            // set newLayer's varies properties to Layers'
+            newLayer.setLRBTEnds(lrbtEnds!!)
+            newLayer.pixelSize = pixelSize
+        }
 
         var i = 0
         while (true) {

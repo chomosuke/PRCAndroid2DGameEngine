@@ -7,7 +7,7 @@ import com.chomusukestudio.prcandroid2dgameengine.glRenderer.UNUSED
 import kotlin.math.sign
 
 class TriangularShape(vertex1: Vector, vertex2: Vector, vertex3: Vector,
-                      color: Color, val buildShapeAttr: BuildShapeAttr
+                      color: Color, private val buildShapeAttr: BuildShapeAttr
 ) : Shape() {
     
     private var triangle: GLTriangle? = if (buildShapeAttr.visibility) GLTriangle(vertex1.x, vertex1.y, vertex2.x, vertex2.y, vertex3.x, vertex3.y,
@@ -17,12 +17,22 @@ class TriangularShape(vertex1: Vector, vertex2: Vector, vertex3: Vector,
     private var triangleCoords = /*if (visibility) FloatArray(6) else */floatArrayOf(vertex1.x, vertex1.y, vertex2.x, vertex2.y, vertex3.x, vertex3.y)
     private var RGBA = /*if (visibility) FloatArray(4) else */floatArrayOf(color.red, color.green, color.blue, color.alpha)
 
-    override val shapeColor: Color
+    override var shapeColor: Color
         get() =
             if (visibility)
                 Color(triangle!!.RGBA[0], triangle!!.RGBA[1], triangle!!.RGBA[2], triangle!!.RGBA[3])
             else
                 Color(RGBA[0], RGBA[1], RGBA[2], RGBA[3])
+        set(value) {
+            if (visibility) {
+                triangle!!.setTriangleRGBA(value.red, value.green, value.blue, value.alpha)
+            } else {
+                RGBA[0] = value.red
+                RGBA[1] = value.green
+                RGBA[2] = value.blue
+                RGBA[3] = value.alpha
+            }
+        }
 
     override fun resetAlpha(alpha: Float) {
         if (visibility)
@@ -53,8 +63,6 @@ class TriangularShape(vertex1: Vector, vertex2: Vector, vertex3: Vector,
     
     override val overlapper: Overlapper
         get() = TriangularOverlapper(vertex1, vertex2, vertex3)
-
-    override val size: Int = 1
 
     fun getTriangularShapeCoords() = if (visibility) {
         triangle!!.triangleCoords.floatArray
@@ -144,18 +152,6 @@ class TriangularShape(vertex1: Vector, vertex2: Vector, vertex3: Vector,
         }
     }
 
-    override fun resetShapeColor(color: Color) {
-        if (visibility) {
-            triangle!!.setTriangleRGBA(color.red, color.green, color.blue, color.alpha)
-        } else {
-            RGBA[0] = color.red
-            RGBA[1] = color.green
-            RGBA[2] = color.blue
-            RGBA[3] = color.alpha
-        }
-    }
-
-    override var removed = false
     override fun remove() {
         if (visibility) {
             triangle!!.removeTriangle()
@@ -167,10 +163,6 @@ class TriangularShape(vertex1: Vector, vertex2: Vector, vertex3: Vector,
             triangleCoords[3] = UNUSED
             triangleCoords[4] = UNUSED
             triangleCoords[5] = UNUSED
-            RGBA[0] = UNUSED
-            RGBA[1] = UNUSED
-            RGBA[2] = UNUSED
-            RGBA[3] = UNUSED
         }
         removed = true
     }

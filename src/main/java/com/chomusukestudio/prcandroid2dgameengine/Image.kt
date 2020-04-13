@@ -3,13 +3,13 @@ package com.chomusukestudio.prcandroid2dgameengine
 import android.content.Context
 import com.chomusukestudio.prcandroid2dgameengine.shape.*
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.GLImage
-import com.chomusukestudio.prcandroid2dgameengine.glRenderer.Layers
+import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
 
-class Image(context: Context, resourceId: Int, var vertex1: Vector, var vertex2: Vector, var vertex3: Vector, var vertex4: Vector,
-            overlapperVertexes: Array<Vector>, showOverlapper: Boolean,
-            z: Float, layers: Layers
-): ISolid, IRemovable {
-    private val glImage = GLImage(context, resourceId, vertex1, vertex2, vertex3, vertex4, z, layers)
+class Image(context: Context, resourceId: Int, private var vertex1: Vector, private var vertex2: Vector, private var vertex3: Vector, private var vertex4: Vector,
+            overlapperVertexes: Array<Vector>?, showOverlapper: Boolean,
+            z: Float, drawData: DrawData): ISolid, IRemovable {
+
+    private val glImage = GLImage(context, resourceId, vertex1, vertex2, vertex3, vertex4, z, drawData)
 
     fun setColorSwap(colorBeSwapped: Color, colorSwappedTo: Color) {
         glImage.setColorSwap(colorBeSwapped.toArray(), colorSwappedTo.toArray())
@@ -47,13 +47,13 @@ class Image(context: Context, resourceId: Int, var vertex1: Vector, var vertex2:
         vertex4 = vertex4.rotateVector(centerOfRotation, angle)
     }
 
-    override val overlapper: Overlapper = PolygonalOverlapper(overlapperVertexes)
+    override val overlapper: Overlapper = if (overlapperVertexes != null) PolygonalOverlapper(overlapperVertexes) else EmptyOverlapper()
 
-    private val overlapperShape = if (showOverlapper)
+    private val overlapperShape = if (showOverlapper && overlapperVertexes != null)
         EarClipPolygonalShape(
                 overlapperVertexes,
                 Color(0f, 1f, 0f, 0.4f),
-                BuildShapeAttr(-100f, true, layers)
+                BuildShapeAttr(-100f, true, drawData)
         )
     else null
 

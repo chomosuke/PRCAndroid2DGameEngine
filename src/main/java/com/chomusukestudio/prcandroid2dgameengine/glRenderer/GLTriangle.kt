@@ -5,7 +5,7 @@ import com.chomusukestudio.prcandroid2dgameengine.shape.BuildShapeAttr
 
 class GLTriangle (buildShapeAttr: BuildShapeAttr) {
 
-    val shapeLayer: ShapeLayer = getLayer(buildShapeAttr.z, buildShapeAttr.layers) // the layer this triangle belong
+    val shapeLayer: ShapeLayer = buildShapeAttr.drawData.getLayer(buildShapeAttr.z) { ShapeLayer(buildShapeAttr.z) } // the layer this triangle belong
 
     val z: Float
         get() = shapeLayer.z
@@ -32,7 +32,7 @@ class GLTriangle (buildShapeAttr: BuildShapeAttr) {
         }
     }
 
-    private val colorPointer = shapeLayer.getFragmentPointer(coordPointer)
+    private val colorPointer = shapeLayer.getFragmentPointer(coordPointer, 0)
     val RGBA: RGBAArray = object : RGBAArray() {
 
         override var floatArray: FloatArray
@@ -41,32 +41,19 @@ class GLTriangle (buildShapeAttr: BuildShapeAttr) {
 
         override fun get(index: Int): Float {
             if (index < 12)
-                return shapeLayer.fragmentData[colorPointer + index]
+                return shapeLayer.fragmentDatas[0][colorPointer + index]
             else
                 throw IndexOutOfBoundsException("invalid index for getRGBAArray: $index")
         }
         override fun set(index: Int, value: Float) {
             if (index < 4) {
-                shapeLayer.fragmentData[colorPointer + index] = value
-                shapeLayer.fragmentData[colorPointer + index + 4] = value
-                shapeLayer.fragmentData[colorPointer + index + 8] = value
+                shapeLayer.fragmentDatas[0][colorPointer + index] = value
+                shapeLayer.fragmentDatas[0][colorPointer + index + 4] = value
+                shapeLayer.fragmentDatas[0][colorPointer + index + 8] = value
             } else {
                 throw IndexOutOfBoundsException("invalid index for setRGBAArray: $index")
             }
         }
-    }
-
-    private fun getLayer(z: Float, layers: Layers): ShapeLayer {
-            for (layer in layers) {
-                if (layer.z == z && layer is ShapeLayer) {
-                    return layer // find the layer with that z
-                }
-            }
-
-            // there is no layer with that z so create one and return index of that layer
-            val newLayer = ShapeLayer(z)
-            layers.insert(newLayer)
-            return newLayer
     }
 
     constructor(x1: Float, y1: Float,
@@ -86,9 +73,9 @@ class GLTriangle (buildShapeAttr: BuildShapeAttr) {
 
     constructor(coords: FloatArray, color: FloatArray, buildShapeAttr: BuildShapeAttr) : this(buildShapeAttr) {
         System.arraycopy(coords, 0, shapeLayer.triangleCoords, coordPointer, coords.size)
-        System.arraycopy(color, 0, shapeLayer.fragmentData, colorPointer, color.size)
-        System.arraycopy(color, 0, shapeLayer.fragmentData, colorPointer + 4, color.size)
-        System.arraycopy(color, 0, shapeLayer.fragmentData, colorPointer + 8, color.size)
+        System.arraycopy(color, 0, shapeLayer.fragmentDatas[0], colorPointer, color.size)
+        System.arraycopy(color, 0, shapeLayer.fragmentDatas[0], colorPointer + 4, color.size)
+        System.arraycopy(color, 0, shapeLayer.fragmentDatas[0], colorPointer + 8, color.size)
     }
 
     fun moveTriangle(dx: Float, dy: Float) {
@@ -112,18 +99,18 @@ class GLTriangle (buildShapeAttr: BuildShapeAttr) {
     }
 
     fun setTriangleRGBA(red: Float, green: Float, blue: Float, alpha: Float) {
-        shapeLayer.fragmentData[0 + colorPointer] = red
-        shapeLayer.fragmentData[1 + colorPointer] = green
-        shapeLayer.fragmentData[2 + colorPointer] = blue
-        shapeLayer.fragmentData[3 + colorPointer] = alpha
-        shapeLayer.fragmentData[4 + colorPointer] = red
-        shapeLayer.fragmentData[5 + colorPointer] = green
-        shapeLayer.fragmentData[6 + colorPointer] = blue
-        shapeLayer.fragmentData[7 + colorPointer] = alpha
-        shapeLayer.fragmentData[8 + colorPointer] = red
-        shapeLayer.fragmentData[9 + colorPointer] = green
-        shapeLayer.fragmentData[10 + colorPointer] = blue
-        shapeLayer.fragmentData[11 + colorPointer] = alpha
+        shapeLayer.fragmentDatas[0][0 + colorPointer] = red
+        shapeLayer.fragmentDatas[0][1 + colorPointer] = green
+        shapeLayer.fragmentDatas[0][2 + colorPointer] = blue
+        shapeLayer.fragmentDatas[0][3 + colorPointer] = alpha
+        shapeLayer.fragmentDatas[0][4 + colorPointer] = red
+        shapeLayer.fragmentDatas[0][5 + colorPointer] = green
+        shapeLayer.fragmentDatas[0][6 + colorPointer] = blue
+        shapeLayer.fragmentDatas[0][7 + colorPointer] = alpha
+        shapeLayer.fragmentDatas[0][8 + colorPointer] = red
+        shapeLayer.fragmentDatas[0][9 + colorPointer] = green
+        shapeLayer.fragmentDatas[0][10 + colorPointer] = blue
+        shapeLayer.fragmentDatas[0][11 + colorPointer] = alpha
     }
 
     fun removeTriangle() {

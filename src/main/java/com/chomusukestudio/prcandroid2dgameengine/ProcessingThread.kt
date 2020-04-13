@@ -2,19 +2,20 @@ package com.chomusukestudio.prcandroid2dgameengine
 
 import android.util.Log
 import android.view.MotionEvent
-import com.chomusukestudio.prcandroid2dgameengine.glRenderer.Layers
+import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 
 abstract class ProcessingThread {
-    val layers = Layers()
+    val drawData = DrawData()
     
     protected abstract fun generateNextFrame(timeInMillis: Long)
     open fun onTouchEvent(e: MotionEvent): Boolean = false
     protected abstract fun getLeftRightBottomTopBoundaries(width: Int, height: Int): FloatArray
 
     fun updateBoundaries(width: Int, height: Int) {
-        layers.leftRightBottomTopEnds = getLeftRightBottomTopBoundaries(width, height)
+        drawData.leftRightBottomTopEnds = getLeftRightBottomTopBoundaries(width, height)
+        drawData.setPixelSize(width, height)
     }
 
     private val nextFrameThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nextFrameThread") }

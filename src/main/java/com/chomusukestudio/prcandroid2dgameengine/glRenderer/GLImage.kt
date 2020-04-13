@@ -5,12 +5,12 @@ import com.chomusukestudio.prcandroid2dgameengine.shape.IMovable
 import com.chomusukestudio.prcandroid2dgameengine.shape.IRemovable
 import com.chomusukestudio.prcandroid2dgameengine.shape.Vector
 
-class GLImage(context: Context, resourceId: Int, vertex1: Vector, vertex2: Vector, vertex3: Vector, vertex4: Vector, z: Float, private val layers: Layers): IMovable,
+class GLImage(context: Context, resourceId: Int, vertex1: Vector, vertex2: Vector, vertex3: Vector, vertex4: Vector, z: Float, private val drawData: DrawData): IMovable,
     IRemovable {
     private val textureLayer = TextureLayer(context, resourceId, vertex1, vertex2, vertex3, vertex4, z)
 
     init {
-        layers.insert(textureLayer)
+        drawData.insert(textureLayer)
     }
     
     var vertex1
@@ -65,6 +65,6 @@ class GLImage(context: Context, resourceId: Int, vertex1: Vector, vertex2: Vecto
 
     override fun remove() {
         removed = true
-        layers.remove(textureLayer)
+        drawData.remove(textureLayer)
     }
 }
