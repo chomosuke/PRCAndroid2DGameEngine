@@ -1,6 +1,7 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
 import android.opengl.GLUtils
@@ -8,7 +9,7 @@ import com.chomusukestudio.prcandroid2dgameengine.shape.Vector
 import java.nio.FloatBuffer
 
 // this layer only have a single image/texture
-class TextureLayer(private val context: Context, private val resourceId: Int,
+class TextureLayer(private val resourceId: Int,
                    vertex1: Vector, vertex2: Vector, vertex3: Vector, vertex4: Vector,
                    z: Float) : Layer(z, intArrayOf(2) /*texture 2d*/, 1, 2) {
     companion object {
@@ -90,42 +91,10 @@ class TextureLayer(private val context: Context, private val resourceId: Int,
         fragmentDatas[0][11] = 1f
     }
 
-    private fun loadTexture(context: Context, resourceId: Int): Int {
-        val textureHandle = IntArray(1)
-        GLES30.glGenTextures(1, textureHandle, 0)
-        if (textureHandle[0] == 0) {
-            throw RuntimeException("Error generating texture handle.")
-        }
-
-        val options = BitmapFactory.Options()
-        options.inScaled = false // No pre-scaling
-
-        // Read in the resource
-        val bitmap = BitmapFactory.decodeResource(context.resources, resourceId, options)
-
-        // Bind to the texture in OpenGL
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureHandle[0])
-
-        // Set filtering
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
-
-        // Load the bitmap into the bound texture.
-        GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0)
-
-        // generate mipmaps for GL_LINEAR_MIPMAP_LINEAR texture min filter
-        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
-
-        // Recycle the bitmap, since its data has been loaded into OpenGL.
-        bitmap.recycle()
-
-        return textureHandle[0]
-    }
-
     override fun drawLayer(vertexBuffer: FloatBuffer, fragmentBuffers: Array<FloatBuffer>, vertexCount: Int, mvpMatrix: FloatArray) {
         if (textureHandle == 0)
             // haven't done the lazy initialization yet
-            textureHandle = loadTexture(context, resourceId)
+            textureHandle = loadTexture(getBitmap(context, resourceId))
 
         // Add program to OpenGL ES environment
         GLES30.glUseProgram(mProgram)
@@ -197,4 +166,45 @@ class TextureLayer(private val context: Context, private val resourceId: Int,
     protected fun finalize() {
         GLES30.glDeleteTextures(1, intArrayOf(textureHandle), 0)
     }
+}
+
+fun getBitmap(context: Context, drawableName: String): Bitmap {
+    val options = BitmapFactory.Options()
+    options.inScaled = false // No pre-scaling
+
+    val drawableResourceId: Int = context.resources.getIdentifier(drawableName, "drawable", context.packageName)
+    return BitmapFactory.decodeResource(context.resources, drawableResourceId, options)
+}
+
+fun getBitmap(context: Context, resourceId: Int): Bitmap {
+    val options = BitmapFactory.Options()
+    options.inScaled = false // No pre-scaling
+
+    return BitmapFactory.decodeResource(context.resources, resourceId, options)
+}
+
+fun loadTexture(bitmap: Bitmap): Int {
+    val textureHandle = IntArray(1)
+    GLES30.glGenTextures(1, textureHandle, 0)
+    if (textureHandle[0] == 0) {
+        throw RuntimeException("Error generating texture handle.")
+    }
+
+    // Bind to the texture in OpenGL
+    GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureHandle[0])
+
+    // Set filtering
+    GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR)
+    GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
+
+    // Load the bitmap into the bound texture.
+    GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0)
+
+    // generate mipmaps for GL_LINEAR_MIPMAP_LINEAR texture min filter
+    GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
+
+    // Recycle the bitmap, since its data has been loaded into OpenGL.
+    bitmap.recycle()
+
+    return textureHandle[0]
 }

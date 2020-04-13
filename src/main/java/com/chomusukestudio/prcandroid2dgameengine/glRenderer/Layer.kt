@@ -1,5 +1,6 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
+import android.content.Context
 import android.opengl.GLES30
 import android.opengl.Matrix
 import android.util.Log
@@ -173,6 +174,8 @@ abstract class Layer(val z: Float, protected val fragmentStrides: IntArray, init
     }
 
     lateinit var pixelSize: Vector
+        internal set
+    lateinit var context: Context
         internal set
 
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"

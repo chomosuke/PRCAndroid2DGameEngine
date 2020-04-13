@@ -5,9 +5,9 @@ import com.chomusukestudio.prcandroid2dgameengine.shape.IMovable
 import com.chomusukestudio.prcandroid2dgameengine.shape.IRemovable
 import com.chomusukestudio.prcandroid2dgameengine.shape.Vector
 
-class GLImage(context: Context, resourceId: Int, vertex1: Vector, vertex2: Vector, vertex3: Vector, vertex4: Vector, z: Float, private val drawData: DrawData): IMovable,
+class GLImage(resourceId: Int, vertex1: Vector, vertex2: Vector, vertex3: Vector, vertex4: Vector, z: Float, private val drawData: DrawData): IMovable,
     IRemovable {
-    private val textureLayer = TextureLayer(context, resourceId, vertex1, vertex2, vertex3, vertex4, z)
+    private val textureLayer = TextureLayer(resourceId, vertex1, vertex2, vertex3, vertex4, z)
 
     init {
         drawData.insert(textureLayer)

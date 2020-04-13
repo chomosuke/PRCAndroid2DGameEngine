@@ -1,6 +1,5 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
-import android.util.Log
 import com.chomusukestudio.prcandroid2dgameengine.shape.*
 
 class GLEllipse(center: Vector, a: Float, b: Float, color: Color, buildShapeAttr: BuildShapeAttr): IMovable, IRemovable {

@@ -1,13 +1,14 @@
 package com.chomusukestudio.prcandroid2dgameengine
 
+import android.content.Context
 import android.util.Log
 import android.view.MotionEvent
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 
-abstract class ProcessingThread {
-    val drawData = DrawData()
+abstract class ProcessingThread(context: Context) {
+    val drawData = DrawData(context)
     
     protected abstract fun generateNextFrame(timeInMillis: Long)
     open fun onTouchEvent(e: MotionEvent): Boolean = false

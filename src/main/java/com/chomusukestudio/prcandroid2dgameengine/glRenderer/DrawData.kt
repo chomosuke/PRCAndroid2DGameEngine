@@ -1,12 +1,13 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
+import android.content.Context
 import com.chomusukestudio.prcandroid2dgameengine.shape.Vector
 import com.chomusukestudio.prcandroid2dgameengine.threadClasses.ParallelForI
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
 
-class DrawData : Iterable<Layer> { // a group of arrayList
+class DrawData(private val context: Context) : Iterable<Layer> { // a group of arrayList
     private val arrayList = ArrayList<Layer>()
 
     private var lrbtEnds: FloatArray? = null
@@ -55,6 +56,7 @@ class DrawData : Iterable<Layer> { // a group of arrayList
             newLayer.setLRBTEnds(lrbtEnds!!)
             newLayer.pixelSize = pixelSize
         }
+        newLayer.context = context
 
         var i = 0
         while (true) {

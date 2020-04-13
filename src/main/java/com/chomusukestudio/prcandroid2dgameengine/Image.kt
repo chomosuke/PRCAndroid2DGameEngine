@@ -5,11 +5,11 @@ import com.chomusukestudio.prcandroid2dgameengine.shape.*
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.GLImage
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
 
-class Image(context: Context, resourceId: Int, private var vertex1: Vector, private var vertex2: Vector, private var vertex3: Vector, private var vertex4: Vector,
+class Image(resourceId: Int, private var vertex1: Vector, private var vertex2: Vector, private var vertex3: Vector, private var vertex4: Vector,
             overlapperVertexes: Array<Vector>?, showOverlapper: Boolean,
             z: Float, drawData: DrawData): ISolid, IRemovable {
 
-    private val glImage = GLImage(context, resourceId, vertex1, vertex2, vertex3, vertex4, z, drawData)
+    private val glImage = GLImage(resourceId, vertex1, vertex2, vertex3, vertex4, z, drawData)
 
     fun setColorSwap(colorBeSwapped: Color, colorSwappedTo: Color) {
         glImage.setColorSwap(colorBeSwapped.toArray(), colorSwappedTo.toArray())
