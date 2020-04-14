@@ -14,7 +14,11 @@ abstract class ProcessingThread(context: Context) {
     protected abstract fun getLeftRightBottomTopBoundaries(width: Int, height: Int): FloatArray
     protected open fun initializeWithBoundaries() {}
 
-    private val initializationWaiter = ProcessWaiter()
+    private val initializationWaiter = run {
+        val processWaiter = ProcessWaiter()
+        processWaiter.markAsStarted()
+        processWaiter
+    }
     fun waitForInit() = initializationWaiter.waitForFinish()
 
     private var boundariesUpdated = false
@@ -23,7 +27,6 @@ abstract class ProcessingThread(context: Context) {
         drawData.setPixelSize(width, height)
         if (!boundariesUpdated) {
             boundariesUpdated = true
-            initializationWaiter.markAsStarted()
             initializeWithBoundaries()
             initializationWaiter.markAsFinished()
         }
