@@ -14,15 +14,21 @@ abstract class ProcessingThread(context: Context) {
     protected abstract fun getLeftRightBottomTopBoundaries(width: Int, height: Int): FloatArray
     protected open fun initializeWithBoundaries() {}
 
+    private val initializationWaiter = ProcessWaiter()
+    fun waitForInit() = initializationWaiter.waitForFinish()
+
     private var boundariesUpdated = false
     fun updateBoundaries(width: Int, height: Int) {
         drawData.setLeftRightBottomTopEnds(getLeftRightBottomTopBoundaries(width, height))
         drawData.setPixelSize(width, height)
         if (!boundariesUpdated) {
             boundariesUpdated = true
+            initializationWaiter.markAsStarted()
             initializeWithBoundaries()
+            initializationWaiter.markAsFinished()
         }
     }
+
     private val nextFrameThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nextFrameThread") }
     private val processWaiter = ProcessWaiter()
     
@@ -38,9 +44,7 @@ abstract class ProcessingThread(context: Context) {
         }
     }
 
-    fun waitForLastFrame() {
-        processWaiter.waitForFinish()
-    }
+    fun waitForLastFrame() = processWaiter.waitForFinish()
 
     /**
      * Note that this function will not return until last generateNextFrame() return.
