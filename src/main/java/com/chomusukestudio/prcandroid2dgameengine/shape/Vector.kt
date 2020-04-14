@@ -43,9 +43,14 @@ class Vector(val x: Float, val y: Float) {
 
     operator fun plus(anotherVector: Vector) = Vector(x + anotherVector.x, y + anotherVector.y)
     operator fun minus(anotherVector: Vector) = Vector(x - anotherVector.x, y - anotherVector.y)
+    operator fun times(anotherVector: Vector) = Vector(x * anotherVector.x, y * anotherVector.y)
+    operator fun div(anotherVector: Vector) = Vector(x / anotherVector.x, y / anotherVector.y)
+
     operator fun unaryMinus() = Vector(-x, -y)
+
     operator fun times(factor: Float) = Vector(x * factor, y * factor)
     operator fun div(factor: Float) = Vector(x / factor, y / factor)
+
     override fun equals(other: Any?): Boolean {
         return if (other is Vector)
             x == other.x && y == other.y

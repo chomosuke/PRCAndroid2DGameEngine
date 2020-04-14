@@ -168,14 +168,6 @@ class TextureLayer(private val resourceId: Int,
     }
 }
 
-fun getBitmap(context: Context, drawableName: String): Bitmap {
-    val options = BitmapFactory.Options()
-    options.inScaled = false // No pre-scaling
-
-    val drawableResourceId: Int = context.resources.getIdentifier(drawableName, "drawable", context.packageName)
-    return BitmapFactory.decodeResource(context.resources, drawableResourceId, options)
-}
-
 fun getBitmap(context: Context, resourceId: Int): Bitmap {
     val options = BitmapFactory.Options()
     options.inScaled = false // No pre-scaling

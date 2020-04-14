@@ -1,11 +1,10 @@
 package com.chomusukestudio.prcandroid2dgameengine
 
 import android.content.Context
-import android.util.Log
 import android.view.MotionEvent
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
+import com.chomusukestudio.prcandroid2dgameengine.threadClasses.ProcessWaiter
 import java.util.concurrent.Executors
-import java.util.concurrent.locks.ReentrantLock
 
 abstract class ProcessingThread(context: Context) {
     val drawData = DrawData(context)
@@ -13,50 +12,48 @@ abstract class ProcessingThread(context: Context) {
     protected abstract fun generateNextFrame(timeInMillis: Long)
     open fun onTouchEvent(e: MotionEvent): Boolean = false
     protected abstract fun getLeftRightBottomTopBoundaries(width: Int, height: Int): FloatArray
+    protected open fun initializeWithBoundaries() {}
 
+    private var boundariesUpdated = false
     fun updateBoundaries(width: Int, height: Int) {
-        drawData.leftRightBottomTopEnds = getLeftRightBottomTopBoundaries(width, height)
+        drawData.setLeftRightBottomTopEnds(getLeftRightBottomTopBoundaries(width, height))
         drawData.setPixelSize(width, height)
+        if (!boundariesUpdated) {
+            boundariesUpdated = true
+            initializeWithBoundaries()
+        }
     }
-
     private val nextFrameThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nextFrameThread") }
-    private val lock = ReentrantLock()
-    private val condition = lock.newCondition()
+    private val processWaiter = ProcessWaiter()
     
     internal fun internalGenerateNextFrame(timeInMillis: Long) {
-            finished = false // haven't started
+        if (!pausedForChanges) { // if aren't pausing for changes
+            processWaiter.markAsStarted()
             nextFrameThread.submit {
                 runWithExceptionChecked {
-
                     generateNextFrame(timeInMillis)
-
-                    // finished
-                    finished = true
-                    // notify waitForLastFrame
-                    lock.lock()
-                    condition.signal() // wakes up GLThread
-                    //                Log.v("Thread", "nextFrameThread notified lockObject");
-                    lock.unlock()
+                    processWaiter.markAsFinished()
                 }
             }
-    }
-
-    internal fun waitForLastFrame() {
-        // wait for the last nextFrameThread
-        lock.lock()
-        // synchronized outside the loop so other thread can't notify when it's not waiting
-        while (!finished) {
-            //                Log.v("Thread", "nextFrameThread wait() called");
-            try {
-                condition.await() // wait, last nextFrameThread will wake this Thread up
-            } catch (e: InterruptedException) {
-                Log.e("lock", "Who would interrupt lock? They don't even have the reference.", e)
-            }
-
-            //                Log.v("Thread", "nextFrameThread finished waiting");
         }
-        lock.unlock()
     }
 
-    @Volatile private var finished = true // last frame that doesn't exist has finish
+    fun waitForLastFrame() {
+        processWaiter.waitForFinish()
+    }
+
+    /**
+     * Note that this function will not return until last generateNextFrame() return.
+     * Hence calling this in generateNextFrame() will cause a deadlock.
+     */
+    @Volatile private var pausedForChanges = false
+    fun pause() {
+        if (!pausedForChanges) {
+            pausedForChanges = true
+            waitForLastFrame()
+        }
+    }
+    fun resume() {
+        pausedForChanges = false
+    }
 }

@@ -7,29 +7,36 @@ import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
 
-class DrawData(private val context: Context) : Iterable<Layer> { // a group of arrayList
+class DrawData(private val context: Context) { // a group of arrayList
     private val arrayList = ArrayList<Layer>()
 
     private var lrbtEnds: FloatArray? = null
-    var leftRightBottomTopEnds: FloatArray
-        get() = lrbtEnds ?: throw RuntimeException("leftRightBottomTopEnds haven't been initialized")
-        set (value) {
+    private val leftRightBottomTopEnds: FloatArray
+        inline get() = lrbtEnds ?: throw RuntimeException("Boundaries haven't been initialized")
+
+    fun setLeftRightBottomTopEnds (value: FloatArray) {
             lrbtEnds = value
-            for (layer in this) {
+            for (layer in layers) {
                 layer.setLRBTEnds(value)
             }
         }
 
-    private lateinit var pixelSize: Vector // for antialiasing
+    val leftEnd get() = leftRightBottomTopEnds[0]
+    val rightEnd get() = leftRightBottomTopEnds[1]
+    val bottomEnd get() = leftRightBottomTopEnds[2]
+    val topEnd get() = leftRightBottomTopEnds[3]
+
+    lateinit var pixelSize: Vector // for antialiasing
+        private set
     fun setPixelSize(width: Int, height: Int) {
         pixelSize = Vector(abs(leftRightBottomTopEnds[0] - leftRightBottomTopEnds[1]) / width,
                 abs(leftRightBottomTopEnds[2] - leftRightBottomTopEnds[3]) / height)
-        for (layer in this) {
+        for (layer in layers) {
             layer.pixelSize = pixelSize
         }
     }
 
-    override fun iterator() = arrayList.iterator()
+    val layers get() = arrayList.iterator()
 
     fun remove(element: Layer) {
         lockOnArrayList.lock()
@@ -37,8 +44,14 @@ class DrawData(private val context: Context) : Iterable<Layer> { // a group of a
         lockOnArrayList.unlock()
     }
 
+    fun reset() {
+        lockOnArrayList.lock()
+        arrayList.removeAll(arrayList)
+        lockOnArrayList.unlock()
+    }
+
     inline fun <reified T : Layer>getLayer(z: Float, layerFactory:() -> T): T {
-        for (layer in this) {
+        for (layer in layers) {
             if (layer.z == z && layer is T) {
                 return layer // find the layer with that z
             }

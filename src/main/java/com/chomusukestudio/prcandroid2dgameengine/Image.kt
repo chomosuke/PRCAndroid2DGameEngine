@@ -1,11 +1,10 @@
 package com.chomusukestudio.prcandroid2dgameengine
 
-import android.content.Context
-import com.chomusukestudio.prcandroid2dgameengine.shape.*
-import com.chomusukestudio.prcandroid2dgameengine.glRenderer.GLImage
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
+import com.chomusukestudio.prcandroid2dgameengine.glRenderer.GLImage
+import com.chomusukestudio.prcandroid2dgameengine.shape.*
 
-class Image(resourceId: Int, private var vertex1: Vector, private var vertex2: Vector, private var vertex3: Vector, private var vertex4: Vector,
+class Image(resourceId: Int, vertex1: Vector, vertex2: Vector, vertex3: Vector, vertex4: Vector,
             overlapperVertexes: Array<Vector>?, showOverlapper: Boolean,
             z: Float, drawData: DrawData): ISolid, IRemovable {
 
@@ -26,6 +25,15 @@ class Image(resourceId: Int, private var vertex1: Vector, private var vertex2: V
             glImage.colorOffset[2] = value.blue
             glImage.colorOffset[3] = value.alpha
         }
+
+    var vertex4 = vertex4
+        private set
+    var vertex3 = vertex3
+        private set
+    var vertex2 = vertex2
+        private set
+    var vertex1 = vertex1
+        private set
 
     override fun move(displacement: Vector) {
         glImage.move(displacement)

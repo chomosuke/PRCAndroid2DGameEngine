@@ -100,7 +100,7 @@ abstract class Layer(val z: Float, protected val fragmentStrides: IntArray, init
         // repeat for fragmentDatas
         for (i in fragmentDatas.indices) {
             val oldFragmentData = fragmentDatas[i]
-            fragmentDatas[i] = FloatArray(fragmentStrides[i] * size)
+            fragmentDatas[i] = FloatArray(fragmentStrides[i] * 3 * size)
             System.arraycopy(oldFragmentData, 0, fragmentDatas[i], 0, oldFragmentData.size)
         }
 
