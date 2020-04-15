@@ -36,7 +36,7 @@ abstract class Shape : ISolid, IRemovable {
         get() = componentShapes[0].visibility
     
     override val overlapper: Overlapper
-        get() = object : Overlapper() {
+        get() = object : ComponentOverlapper() {
             override val components: Array<Overlapper> = Array(componentShapes.size) { componentShapes[it].overlapper }
         }
     

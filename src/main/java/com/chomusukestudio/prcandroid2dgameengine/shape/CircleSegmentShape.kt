@@ -94,7 +94,7 @@ class CircleSegmentShape() : Shape() {
 }
 
 class CircleSegmentOverlapper(val angle: Float, val center: Vector, val startPoint: Vector) : Overlapper() {
-    override val components: Array<Overlapper> = run {
+    private val components: Array<Overlapper> = run {
         val startingVertex = startPoint.scale(center, 2f)
         arrayOf(
             TriangularOverlapper(startingVertex, startingVertex.rotateVector(center, angle / 3), startingVertex.rotateVector(center, 2 * angle / 3)),
@@ -103,7 +103,7 @@ class CircleSegmentOverlapper(val angle: Float, val center: Vector, val startPoi
         )
     }
 
-    override fun overlap(anotherOverlapper: Overlapper): Boolean {
+    override fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
         return (components[0].overlap(anotherOverlapper) || components[1].overlap(anotherOverlapper)) &&
                 components[2].overlap(anotherOverlapper)
     }

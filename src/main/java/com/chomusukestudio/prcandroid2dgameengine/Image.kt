@@ -74,7 +74,7 @@ class Image(resourceId: Int, vertex1: Vector, vertex2: Vector, vertex3: Vector, 
         get() = glImage.removed
 }
 
-private class PolygonalOverlapper(vertexes: Array<Vector>): Overlapper(), IMovable {
+private class PolygonalOverlapper(vertexes: Array<Vector>): ComponentOverlapper(), IMovable {
 	private val trianglesVertexes = earClip(vertexes)
 
 	override fun move(displacement: Vector) {

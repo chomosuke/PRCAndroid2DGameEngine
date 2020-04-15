@@ -17,20 +17,18 @@ class ProcessWaiter {
     fun markAsFinished() {
         // finished
         finished = true
-        // notify waitForLastFrame
+        // notify
         lock.lock()
-        condition.signal() // wakes up GLThread
-        //                Log.v("Thread", "nextFrameThread notified lockObject");
+        condition.signal() // wakes up waitForFinish
         lock.unlock()
     }
 
     fun waitForFinish() {
-        // wait for the last nextFrameThread
         lock.lock()
         // synchronized outside the loop so other thread can't notify when it's not waiting
         while (!finished) {
             try {
-                condition.await() // wait, last nextFrameThread will wake this Thread up
+                condition.await() // wait for markAsFinished() to wake this Thread up
             } catch (e: InterruptedException) {
                 Log.e("lock", "Who would interrupt lock? They don't even have the reference.", e)
             }

@@ -1,6 +1,8 @@
 package com.chomusukestudio.prcandroid2dgameengine
 
 import android.content.Context
+import android.os.SystemClock
+import android.util.Log
 import android.view.MotionEvent
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.DrawData
 import com.chomusukestudio.prcandroid2dgameengine.threadClasses.ProcessWaiter
@@ -48,7 +50,6 @@ abstract class ProcessingThread(context: Context) {
     }
 
     fun waitForLastFrame() = processWaiter.waitForFinish()
-
     /**
      * Note that this function will not return until last generateNextFrame() return.
      * Hence calling this in generateNextFrame() will cause a deadlock.

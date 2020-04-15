@@ -35,7 +35,6 @@ class Vector(val x: Float, val y: Float) {
     val unitVector get() = this / this.abs
 
     fun scale(pivot: Vector, factor: Float) = Vector(pivot.x + factor * (x - pivot.x), pivot.y + factor * (y - pivot.y))
-    fun scaleXY(factor: Vector) = Vector(x * factor.x, y * factor.y)
     fun offset(dx: Float, dy: Float) = Vector(x + dx, y + dy)
     fun mirrorXAxis() = Vector(x, -y)
     fun mirrorYAxis() = Vector(-x, y)

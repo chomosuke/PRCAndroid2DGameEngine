@@ -41,9 +41,9 @@ class CircularShape(center: Vector, radius: Float, private val performanceIndex:
 
     companion object {
         /**
-         * preferably set this in mainActivity or something instead of using the default value
+         * Todo: preferably set this in initializeWithBoundaries or something instead of using the default value
          */
-        var pixelPerLength = 100
+        var pixelPerLength = 200
 
         fun getNumberOfEdges(radius: Float, dynamicPerformanceIndex: Double = 1.0): Int {
             val pixelOnRadius = pixelPerLength * radius // +0.5 for rounding
@@ -62,7 +62,7 @@ class CircularShape(center: Vector, radius: Float, private val performanceIndex:
 }
 
 class CircularOverlapper(val center: Vector, val radius: Float): Overlapper() {
-    override fun overlap(anotherOverlapper: Overlapper): Boolean {
+    override fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
         when (anotherOverlapper) {
             is CircularOverlapper -> return distance(center, anotherOverlapper.center) <= radius + anotherOverlapper.radius
             is TriangularOverlapper -> {
@@ -102,7 +102,7 @@ class CircularOverlapper(val center: Vector, val radius: Float): Overlapper() {
             is PointOverlapper -> {
                 return distance(center, anotherOverlapper.point) <= radius
             }
-            else -> return super.overlap(anotherOverlapper)
+            else -> return null
         }
     }
     private fun getArea(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float): Float {

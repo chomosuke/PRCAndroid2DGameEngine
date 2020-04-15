@@ -1,12 +1,10 @@
 package com.chomusukestudio.prcandroid2dgameengine.shape
 
-import com.chomusukestudio.prcandroid2dgameengine.distance
 import com.chomusukestudio.prcandroid2dgameengine.glRenderer.GLEllipse
-import com.chomusukestudio.prcandroid2dgameengine.square
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
-import kotlin.math.sqrt
 
 class EllipseShape(center: Vector, a: Float, b: Float, color: Color, private val buildShapeAttr: BuildShapeAttr) : Shape() {
     override var componentShapes: Array<Shape>
@@ -82,53 +80,40 @@ class EllipseShape(center: Vector, a: Float, b: Float, color: Color, private val
 }
 
 class EllipseOverlapper(val center: Vector, val a: Float, val b: Float, val rotation: Float): Overlapper() {
-    override fun overlap(anotherOverlapper: Overlapper): Boolean {
+    override fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
         if (a == b) // convert to circle
             return CircularOverlapper(center, a) overlap anotherOverlapper
         when (anotherOverlapper) {
             is PointOverlapper -> {
-                val point = transformToEllipseCoordinate(anotherOverlapper.point)
-
-                val focus1: Vector
-                val focus2: Vector
-                val d: Float
-                if (a > b) {
-                    d = 2 * a
-                    val c = sqrt(square(a) - square(b))
-                    focus1 = Vector(c, 0f)
-                    focus2 = Vector(-c, 0f)
-                } else {
-                    d = 2 * b
-                    val c = sqrt(square(b) - square(a))
-                    focus1 = Vector(0f, c)
-                    focus2 = Vector(0f, -c)
-                }
-                return distance(focus1, point) + distance(focus2, point) <= d
+                return CircularOverlapper(Vector(0f, 0f), 1f) overlap
+                        PointOverlapper(normalize(anotherOverlapper.point))
             }
             is TriangularOverlapper -> {
-                if (this overlap PointOverlapper(anotherOverlapper.vertex1) ||
-                        this overlap PointOverlapper(anotherOverlapper.vertex2) ||
-                        this overlap PointOverlapper(anotherOverlapper.vertex3)
-                )
-                    return true // triangle's vertex within ellipse
-                val edgePointOverlappers = getEdgePointOverlappers(CircularShape.getNumberOfEdges(a))
-                for (edgePointOverlapper in edgePointOverlappers)
-                    if (anotherOverlapper overlap edgePointOverlapper)
-                        return true // a point on ellipse's edge with in triangle
-                return false
+                return CircularOverlapper(Vector(0f, 0f), 1f) overlap
+                        TriangularOverlapper(
+                                normalize(anotherOverlapper.vertex1),
+                                normalize(anotherOverlapper.vertex2),
+                                normalize(anotherOverlapper.vertex3))
             }
             is CircularOverlapper -> {
-                val edgePointOverlappers = getEdgePointOverlappers(CircularShape.getNumberOfEdges(a))
-                for (edgePointOverlapper in edgePointOverlappers)
-                    if (anotherOverlapper overlap edgePointOverlapper)
-                        return true
-                // circle might be within ellipse
-                return this overlap PointOverlapper(anotherOverlapper.center)
+                return this overlap EllipseOverlapper(anotherOverlapper.center,
+                        anotherOverlapper.radius, anotherOverlapper.radius, 0f)
             }
-            else -> return super.overlap(anotherOverlapper)
+            is EllipseOverlapper -> {
+                val thisEdgePointOverlappers = getEdgePointOverlappers(CircularShape.getNumberOfEdges(max(a, b)))
+                val otherEdgePointOverlappers = anotherOverlapper.getEdgePointOverlappers(CircularShape.getNumberOfEdges(max(a, b)))
+                for (thisEdgePointOverlapper in thisEdgePointOverlappers)
+                    if (anotherOverlapper.overlap(thisEdgePointOverlapper))
+                        return true
+                for (otherEdgePointOverlapper in otherEdgePointOverlappers)
+                    if (this.overlap(otherEdgePointOverlapper))
+                        return true
+                return false
+            }
+            else -> return null
         }
     }
-    private fun transformToEllipseCoordinate(coordinate: Vector) = (coordinate - center).rotateVector(-rotation)
+    private fun normalize(coordinate: Vector) = (coordinate - center).rotateVector(-rotation) / Vector(a, b)
 
     private fun getEdgePointOverlappers(numberOfEdges: Int) = Array(numberOfEdges) {
         val theta = 2f * PI.toFloat() * it / numberOfEdges

@@ -1,15 +1,13 @@
 package com.chomusukestudio.prcandroid2dgameengine.shape
 
-import java.lang.Math.PI
-import java.lang.Math.cos
-import java.lang.Math.sin
+import kotlin.math.*
 
 class TopHalfRingShape(center: Vector, a: Float, b: Float, factor: Float, color: Color, buildShapeAttr: BuildShapeAttr) : Shape() {
     override lateinit var componentShapes: Array<Shape>
 
     init {
 
-        val numberOfEdges = CircularShape.getNumberOfEdges((a + b + 1f) / 2) / 2 // + 1 is for the rounding.
+        val numberOfEdges = CircularShape.getNumberOfEdges(max(a, b)) / 2
 
         val componentShapes = arrayOfNulls<QuadrilateralShape>(numberOfEdges)
 

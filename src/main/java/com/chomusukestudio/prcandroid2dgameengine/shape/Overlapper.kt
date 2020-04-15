@@ -1,8 +1,26 @@
 package com.chomusukestudio.prcandroid2dgameengine.shape
 
 abstract class Overlapper {
-    open val components: Array<Overlapper> get() = arrayOf(this) // default is itself
-    open infix fun overlap(anotherOverlapper: Overlapper): Boolean {
+    infix fun overlap(anotherOverlapper: Overlapper): Boolean {
+        val thisOverlapOther = overlapToOverride(anotherOverlapper)
+        if (thisOverlapOther != null)
+            return thisOverlapOther
+        val otherOverlapthis = anotherOverlapper.overlapToOverride(this)
+        if (otherOverlapthis != null)
+            return otherOverlapthis
+        throw RuntimeException("the combination of overlappers are not implemented")
+    }
+
+    // return null if the combination is not implemented in this.
+    protected open fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
+        return null
+    }
+}
+
+abstract class ComponentOverlapper: Overlapper() {
+    protected abstract val components: Array<Overlapper>
+
+    final override fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
         for (component in components)
             if (anotherOverlapper.overlap(component))
             // if this overlapper provides no solution, pass itself or it's components to the other one
@@ -24,7 +42,7 @@ class PointOverlapper(val point: Vector): Overlapper() {
 }
 
 class LineSegmentOverlapper(val p1: Vector, val p2: Vector): Overlapper() {
-    override fun overlap(anotherOverlapper: Overlapper): Boolean {
+    override fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
         when (anotherOverlapper) {
             is LineSegmentOverlapper -> {
                 val m1 = (p1.y - p2.y) / (p1.x - p2.x)
@@ -53,7 +71,7 @@ class LineSegmentOverlapper(val p1: Vector, val p2: Vector): Overlapper() {
                         isBetween(anotherOverlapper.p1.x, anotherOverlapper.p2.x, intersectionX)
 
             }
-            else -> return super.overlap(anotherOverlapper)
+            else -> return null
         }
     }
     private fun intersectionX(m1: Float, c1: Float, m2: Float, c2: Float) = (c2 - c1) / (m1 - m2)
@@ -61,7 +79,7 @@ class LineSegmentOverlapper(val p1: Vector, val p2: Vector): Overlapper() {
 }
 
 class EmptyOverlapper() : Overlapper() {
-    override fun overlap(anotherOverlapper: Overlapper): Boolean {
+    override fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
         return false
     }
 }

@@ -169,7 +169,7 @@ class TriangularShape(vertex1: Vector, vertex2: Vector, vertex3: Vector,
 }
 
 class TriangularOverlapper(val vertex1: Vector, val vertex2: Vector, val vertex3: Vector): Overlapper() {
-    override fun overlap(anotherOverlapper: Overlapper): Boolean {
+    override fun overlapToOverride(anotherOverlapper: Overlapper): Boolean? {
         when (anotherOverlapper) {
             is PointOverlapper -> {
                 val point = anotherOverlapper.point
@@ -206,7 +206,7 @@ class TriangularOverlapper(val vertex1: Vector, val vertex2: Vector, val vertex3
                         // segment crosses triangle's segment
                         this overlap PointOverlapper(anotherOverlapper.p1) // segment within triangle
             }
-            else -> return super.overlap(anotherOverlapper)
+            else -> return null
         }
     }
     private fun getArea(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float): Float {
