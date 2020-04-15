@@ -22,6 +22,15 @@ class EllipseShape(center: Vector, a: Float, b: Float, color: Color, private val
             field = value
         }
 
+    override fun resetAlpha(alpha: Float) {
+        shapeColor = Color(shapeColor.red, shapeColor.green, shapeColor.blue, alpha)
+    }
+
+    override fun changeShapeColor(dRed: Float, dGreen: Float, dBlue: Float, dAlpha: Float) {
+        shapeColor = Color(shapeColor.red + dRed, shapeColor.green + dGreen,
+                shapeColor.blue + dBlue, shapeColor.alpha + dAlpha)
+    }
+
     override fun remove() {
         glEllipse?.remove()
         removed = true
