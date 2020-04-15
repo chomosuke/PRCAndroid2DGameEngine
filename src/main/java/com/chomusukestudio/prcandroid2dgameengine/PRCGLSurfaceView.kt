@@ -14,8 +14,6 @@ import javax.microedition.khronos.egl.EGLDisplay
 
 open class PRCGLSurfaceView(context: Context, attributeSet: AttributeSet) : GLSurfaceView(context, attributeSet) {
 
-    private val activity = scanForActivity(context)
-
     init {
         // Create an OpenGL ES 3.0 context
         setEGLContextClientVersion(3)
@@ -54,9 +52,6 @@ open class PRCGLSurfaceView(context: Context, attributeSet: AttributeSet) : GLSu
         // Set the Renderer for drawing on the GLSurfaceView
         debugFlags = DEBUG_LOG_GL_CALLS
         setRenderer(mRenderer)
-        //
-        //            // Render the view only when there is a change in the drawing data
-        //            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
@@ -74,15 +69,6 @@ open class PRCGLSurfaceView(context: Context, attributeSet: AttributeSet) : GLSu
             }
         } while (nullPointerFailure)
     }
-
-//        override fun onMeasure(width: Int, height: Int) {
-//            super.onMeasure(width, height)
-//            // set width and height
-//            widthInPixel = width.toFloat()
-//            heightInPixel = height.toFloat()
-//
-//            GLTriangle.refreshAllMatrix()
-//        }
 
     override fun onTouchEvent(e: MotionEvent): Boolean {
         return mRenderer.processingThread.onTouchEvent(e) // we know that the context is MainActivity
