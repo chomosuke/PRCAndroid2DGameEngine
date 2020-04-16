@@ -23,14 +23,21 @@ abstract class ProcessingThread(context: Context) {
     }
     fun waitForInit() = initializationWaiter.waitForFinish()
 
+    // you can call this manually if you need to initialize before initializng GLSurfaceView
     private var boundariesUpdated = false
     fun updateBoundaries(width: Int, height: Int) {
         drawData.setLeftRightBottomTopEnds(getLeftRightBottomTopBoundaries(width, height))
         drawData.setPixelSize(width, height)
         if (!boundariesUpdated) {
             boundariesUpdated = true
-            initializeWithBoundaries()
-            initializationWaiter.markAsFinished()
+
+            // initialize in another thread so surface view's construction doesn't have to wait
+            Executors.newSingleThreadExecutor().submit {
+                runWithExceptionChecked {
+                    initializeWithBoundaries()
+                    initializationWaiter.markAsFinished()
+                }
+            }
         }
     }
 

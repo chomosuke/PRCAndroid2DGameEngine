@@ -5,9 +5,11 @@ import android.opengl.GLES30
 import android.opengl.Matrix
 import android.util.Log
 import com.chomusukestudio.prcandroid2dgameengine.shape.Vector
+import com.chomusukestudio.prcandroid2dgameengine.threadClasses.ProcessWaiter
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.util.concurrent.locks.ReentrantLock
 
 // if any layer.triangleCoords[i1] contain this value then it's unused
 const val UNUSED = -107584485858583778999908789293009999999f
@@ -42,6 +44,9 @@ abstract class Layer(val z: Float, protected val fragmentStrides: IntArray, init
     }
 
     fun passArraysToBuffers() {
+
+        drawLock.lock() // not passing arrays to buffers when it's still drawing
+
         // offset the coordinates to the FloatBuffer
         vertexBuffer.put(triangleCoords)
         // set the buffer to read the first coordinate
@@ -52,6 +57,8 @@ abstract class Layer(val z: Float, protected val fragmentStrides: IntArray, init
             // set the buffer to read the first coordinate
             fragmentBuffers[i].position(0)
         }
+
+        drawLock.unlock()
     }
 
     private var lastUsedCoordIndex = 0 // should increase performance by ever so slightly, isn't really necessary.
@@ -201,9 +208,11 @@ abstract class Layer(val z: Float, protected val fragmentStrides: IntArray, init
         Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
     }
 
-    // this extra wrapper function is added to prevent overly tide coupling for Layer and it's subclasses
+    private val drawLock = ReentrantLock() // for buffer not updating during draw
     fun drawLayer() {
+        drawLock.lock()
         drawLayer(vertexBuffer, fragmentBuffers, vertexCount, mvpMatrix)
+        drawLock.unlock()
     }
 
     protected abstract fun drawLayer(vertexBuffer: FloatBuffer, fragmentBuffers: Array<FloatBuffer>, vertexCount: Int, mvpMatrix: FloatArray)
