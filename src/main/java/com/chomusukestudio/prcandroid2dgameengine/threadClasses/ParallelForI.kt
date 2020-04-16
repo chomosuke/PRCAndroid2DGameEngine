@@ -61,12 +61,11 @@ class ParallelForI(val __numberOfThread: Int, val __name: String) {
             for (i in 0 until __numberOfThread) {
                 __executorService.submit {
                     val iInitial = i * MAX_I / __numberOfThread
-                    val iSmallerThan: Int
-                    if (i == __numberOfThread - 1)
+                    val iSmallerThan: Int = if (i == __numberOfThread - 1)
                     // last thread
-                        iSmallerThan = MAX_I
+                        MAX_I
                     else
-                        iSmallerThan = (i + 1) * MAX_I / __numberOfThread
+                        (i + 1) * MAX_I / __numberOfThread
                     for (i1 in iInitial until iSmallerThan) {
                         functionForI(i1)
                     }

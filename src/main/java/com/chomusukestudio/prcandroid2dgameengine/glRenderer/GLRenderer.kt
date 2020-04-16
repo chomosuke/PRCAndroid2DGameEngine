@@ -10,7 +10,7 @@ import android.util.Log
 import javax.microedition.khronos.opengles.GL10
 
 import android.content.ContentValues.TAG
-import android.opengl.GLES30
+import android.opengl.GLES20
 import com.chomusukestudio.prcandroid2dgameengine.PRCGLSurfaceView
 import com.chomusukestudio.prcandroid2dgameengine.PauseableTimer
 import com.chomusukestudio.prcandroid2dgameengine.ProcessingThread
@@ -24,11 +24,11 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
 
     override fun onSurfaceCreated(unused: GL10, config: javax.microedition.khronos.egl.EGLConfig) {
         //enable transparency
-        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        GLES20.glEnable(GLES20.GL_BLEND)
 
         // Set the background frame color
-        GLES30.glClearColor(0f, 0f, 0f, 1f)
+        GLES20.glClearColor(0f, 0f, 0f, 1f)
 
         ShapeLayer.createGLProgram()
         TextureLayer.createGLProgram()
@@ -48,10 +48,10 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
             processingThread.internalGenerateNextFrame(timer.timeMillis())
         }
         // Clear the screen
-        //        GLES30.glClear(GL_DEPTH_BUFFER_BIT);
+        //        GLES20.glClear(GL_DEPTH_BUFFER_BIT);
 
         // Redraw background color
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         // this is required on certain devices
 
         // Draw all!
@@ -59,7 +59,7 @@ class GLRenderer(val processingThread: ProcessingThread, private val PRCGLSurfac
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
-        GLES30.glViewport(0, 0, width, height)
+        GLES20.glViewport(0, 0, width, height)
         // for transformation to matrix
 
         // this projection matrix is applied to object coordinates

@@ -1,6 +1,6 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
-import android.opengl.GLES30
+import android.opengl.GLES20
 import java.nio.FloatBuffer
 
 class EllipseLayer(z: Float): Layer(z, intArrayOf(4/*color*/, 2/*reference coords*/, 2/*pixelSize*/), 5, 2) {
@@ -97,63 +97,63 @@ class EllipseLayer(z: Float): Layer(z, intArrayOf(4/*color*/, 2/*reference coord
 
     override fun drawLayer(vertexBuffer: FloatBuffer, fragmentBuffers: Array<FloatBuffer>, vertexCount: Int, mvpMatrix: FloatArray) {
         // Add program to OpenGL ES environment
-        GLES30.glUseProgram(mProgram)
+        GLES20.glUseProgram(mProgram)
 
         // get handle to vertex shader's vPosition member
-        val mPositionHandle = GLES30.glGetAttribLocation(mProgram, "vPosition")
+        val mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition")
 
         // Enable a handle to the triangle vertices
-        GLES30.glEnableVertexAttribArray(mPositionHandle)
+        GLES20.glEnableVertexAttribArray(mPositionHandle)
 
         // Prepare the triangle coordinate data
-        GLES30.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
-            GLES30.GL_FLOAT, false,
+        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
+            GLES20.GL_FLOAT, false,
             0, vertexBuffer)
 
         // get handle to fragment shader's vColor member
-        val mColorHandle = GLES30.glGetAttribLocation(mProgram, "color")
+        val mColorHandle = GLES20.glGetAttribLocation(mProgram, "color")
         // Set colors for drawing the circle
-        GLES30.glEnableVertexAttribArray(mColorHandle)
-        GLES30.glVertexAttribPointer(mColorHandle, fragmentStrides[0],
-            GLES30.GL_FLOAT, false,
+        GLES20.glEnableVertexAttribArray(mColorHandle)
+        GLES20.glVertexAttribPointer(mColorHandle, fragmentStrides[0],
+            GLES20.GL_FLOAT, false,
             0, fragmentBuffers[0]
         )
 
-        val tCoordsHandle = GLES30.glGetAttribLocation(mProgram, "tCoords")
-        GLES30.glEnableVertexAttribArray(tCoordsHandle)
-        GLES30.glVertexAttribPointer(tCoordsHandle, fragmentStrides[1],
-                GLES30.GL_FLOAT, false,
+        val tCoordsHandle = GLES20.glGetAttribLocation(mProgram, "tCoords")
+        GLES20.glEnableVertexAttribArray(tCoordsHandle)
+        GLES20.glVertexAttribPointer(tCoordsHandle, fragmentStrides[1],
+                GLES20.GL_FLOAT, false,
                 0, fragmentBuffers[1]
         )
 
-        val abHandle = GLES30.glGetAttribLocation(mProgram, "ab")
-        GLES30.glEnableVertexAttribArray(abHandle)
-        GLES30.glVertexAttribPointer(abHandle, fragmentStrides[2],
-                GLES30.GL_FLOAT, false,
+        val abHandle = GLES20.glGetAttribLocation(mProgram, "ab")
+        GLES20.glEnableVertexAttribArray(abHandle)
+        GLES20.glVertexAttribPointer(abHandle, fragmentStrides[2],
+                GLES20.GL_FLOAT, false,
                 0, fragmentBuffers[2]
         )
 
-        GLES30.glUniform2f(GLES30.glGetUniformLocation(mProgram, "pixelSize"),
+        GLES20.glUniform2f(GLES20.glGetUniformLocation(mProgram, "pixelSize"),
                 pixelSize.x, pixelSize.y)
 
         // get handle to shape's transformation matrix
-        val mMVPMatrixHandle = GLES30.glGetUniformLocation(mProgram, "uMVPMatrix")
+        val mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
         // comment for mMVPMatrixHandle when it's still global: Use to access and set the view transformation
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0)
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0)
 
         // Draw the triangle
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, vertexCount)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
 
         // check for error
-        val error = GLES30.glGetError()
-        if (error != GLES30.GL_NO_ERROR) {
+        val error = GLES20.glGetError()
+        if (error != GLES20.GL_NO_ERROR) {
             throw RuntimeException("GL error: $error, $mProgram")
         }
 
         // Disable vertex array
-        GLES30.glDisableVertexAttribArray(mPositionHandle)
-        GLES30.glDisableVertexAttribArray(mColorHandle)
+        GLES20.glDisableVertexAttribArray(mPositionHandle)
+        GLES20.glDisableVertexAttribArray(mColorHandle)
     }
 }

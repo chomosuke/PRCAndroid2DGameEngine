@@ -1,7 +1,7 @@
 package com.chomusukestudio.prcandroid2dgameengine.glRenderer
 
 import android.content.Context
-import android.opengl.GLES30
+import android.opengl.GLES20
 import android.opengl.Matrix
 import android.util.Log
 import com.chomusukestudio.prcandroid2dgameengine.shape.Vector
@@ -138,29 +138,29 @@ abstract class Layer(val z: Float, protected val fragmentStrides: IntArray, init
 
     companion object {
         fun createGLProgram(vertexShaderCode: String, fragmentShaderCode: String): Int {
-            val program = GLES30.glCreateProgram()
+            val program = GLES20.glCreateProgram()
             // can't do in the declaration as will return 0 because not everything is prepared
 
-            val vertexShader = loadShader(GLES30.GL_VERTEX_SHADER, vertexShaderCode)
-            val fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER, fragmentShaderCode)
+            val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
+            val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
 
             // offset the vertex shader to program
-            GLES30.glAttachShader(program, vertexShader)
+            GLES20.glAttachShader(program, vertexShader)
 
             // offset the fragment shader to program
-            GLES30.glAttachShader(program, fragmentShader)
+            GLES20.glAttachShader(program, fragmentShader)
 
             // creates OpenGL ES program executables
-            GLES30.glLinkProgram(program)
+            GLES20.glLinkProgram(program)
 
             // check for errors in glLinkProgram
             val linkStatus = IntArray(1)
-            GLES30.glGetProgramiv(program, GLES30.GL_LINK_STATUS, linkStatus, 0)
-            if (linkStatus[0] != GLES30.GL_TRUE) {
+            GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0)
+            if (linkStatus[0] != GLES20.GL_TRUE) {
                 throw RuntimeException("gl program not successful linked: " + linkStatus[0] +
-                        "\n" + GLES30.glGetProgramInfoLog(program) +
-                        "\nvertexShader's Errors:\n" + GLES30.glGetShaderInfoLog(vertexShader) +
-                        "\nfragmentShader's Errors:\n" + GLES30.glGetShaderInfoLog(fragmentShader) +
+                        "\n" + GLES20.glGetProgramInfoLog(program) +
+                        "\nvertexShader's Errors:\n" + GLES20.glGetShaderInfoLog(vertexShader) +
+                        "\nfragmentShader's Errors:\n" + GLES20.glGetShaderInfoLog(fragmentShader) +
                         "\n" + vertexShaderCode +
                         "\n" + fragmentShaderCode)
             }
@@ -170,11 +170,11 @@ abstract class Layer(val z: Float, protected val fragmentStrides: IntArray, init
 
             // create a vertex shader type (GLES31.GL_VERTEX_SHADER)
             // or a fragment shader type (GLES31.GL_FRAGMENT_SHADER)
-            val shader = GLES30.glCreateShader(type)
+            val shader = GLES20.glCreateShader(type)
 
             // offset the source code to the shader and compile it
-            GLES30.glShaderSource(shader, shaderCode)
-            GLES30.glCompileShader(shader)
+            GLES20.glShaderSource(shader, shaderCode)
+            GLES20.glCompileShader(shader)
 
             return shader
         }
