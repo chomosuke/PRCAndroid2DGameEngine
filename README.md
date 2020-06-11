@@ -11,4 +11,4 @@ The only way you can(should) modify drawData is by passing it into a Shape class
 
 You'll specify the coordinate system by returning an FloatArray specifying the boundary of the coordinate system in getLeftRightBottomTopBoundaries().
 
-Call <yourPRCSurfaceView>.initializeRenderer(<yourProcessingThread>) to initialize the SurfaceView.
+Call \<yourPRCSurfaceView\>.initializeRenderer(\<yourProcessingThread\>) to initialize the SurfaceView.
